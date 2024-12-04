@@ -8,9 +8,18 @@ vars:
   GO_TEST_ARGS: -race -covermode=atomic -coverprofile=coverage.out $(go list ./... | grep -v /cmd | grep -v /gen | grep -v /test)
 
 tasks:
-  lefthook:
+  lefhook:install:
     internal: true
-    cmd: go run github.com/evilmartians/lefthook install
+    cmds:
+      - go install github.com/evilmartians/lefthook@latest
+    status:
+      - lefthook --version
+
+  lefthook:
+    deps:
+      - lefhook:install
+    internal: true
+    cmd: lefthook install
 
   commitlint:install:
     internal: true
