@@ -1,0 +1,120 @@
+syntax = 'proto3';
+
+package jina.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/trancong12102/jina-inference/gen/jina/v1;jinav1";
+
+service InferenceService {
+  rpc Embed(EmbedRequest) returns (EmbedResponse) {}
+  rpc Rerank(RerankRequest) returns (RerankResponse) {}
+}
+
+service ApiKeyService {
+  rpc AddApiKey(AddApiKeyRequest) returns (AddApiKeyResponse) {}
+  rpc GetAvailableApiKeys(GetAvailableApiKeysRequest) returns (GetAvailableApiKeysResponse) {}
+}
+
+message GetAvailableApiKeysRequest {}
+message GetAvailableApiKeysResponse {
+  repeated ApiKey keys = 1;
+}
+
+message AddApiKeyRequest {
+  string key = 1;
+}
+
+message AddApiKeyResponse {
+  ApiKey key = 1;
+}
+
+message ApiKey {
+  string key = 1;
+  uint64 balance = 2;
+  google.protobuf.Timestamp expires_at = 3;
+  google.protobuf.Timestamp last_used_at = 4;
+}
+
+message RerankRequest {
+  RerankInput input = 1;
+}
+
+message RerankResponse {
+  RerankResult result = 1;
+}
+
+message EmbedRequest {
+  EmbedInput input = 1;
+}
+
+message EmbedResponse {
+  EmbedResult result = 1;
+}
+
+message EmbedInput {
+  enum Model {
+    MODEL_UNSPECIFIED = 0;
+    MODEL_JINA_CLIP = 1;
+    MODEL_JINA_EMBEDDINGS = 2;
+  }
+
+  enum Task {
+    TASK_UNSPECIFIED = 0;
+    TASK_RETRIEVAL_QUERY = 1;
+    TASK_RETRIEVAL_PASSAGE = 2;
+    TASK_SEPARATION = 3;
+    TASK_CLASSIFICATION = 4;
+    TASK_TEXT_MATCHING = 5;
+  }
+
+  message Input {
+    oneof data {
+      string text = 1;
+      string image = 2;
+    }
+  }
+
+  Model model = 1;
+  optional Task task = 2;
+  optional bool normalized = 3;
+  optional bool late_chunking = 4;
+  repeated Input inputs = 5;
+}
+
+message Usage {
+  uint32 total_tokens = 1;
+  optional uint32 prompt_tokens = 2;
+}
+
+message EmbedResult {
+  message Data {
+    uint32 index = 1;
+    repeated float embedding = 2;
+  }
+
+  Usage usage = 1;
+  repeated Data data = 2;
+}
+
+message RerankInput {
+  enum Model {
+    MODEL_UNSPECIFIED = 0;
+    MODEL_JINA_RERANKER = 1;
+  }
+
+  Model model = 1;
+  string query = 2;
+  uint32 top_n = 3;
+  repeated string documents = 4;
+}
+
+message RerankResult {
+  message Result {
+    uint32 index = 1;
+    float relevance_score = 2;
+  }
+
+  Usage usage = 1;
+  repeated Result results = 2;
+}

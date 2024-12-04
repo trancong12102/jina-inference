@@ -1,0 +1,17 @@
+pre-commit:
+  commands:
+    generate:
+      glob: "*.go"
+      run: task generate
+      stage_fixed: true
+    lint:fix:
+      glob: "*.go"
+      run: task lint:fix
+      stage_fixed: true
+    test:
+      glob: "*.go"
+      run: task test
+commit-msg:
+  commands:
+    lint-commit:
+      run: docker run --rm -it -v "$(pwd)":/app -w /app commitlint/commitlint --edit

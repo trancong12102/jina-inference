@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: 3
+
+vars:
+  GOLANGCI_LINT_VERSION: 1.62.2
+  GOLANGCI_LINT: ./.bin/golangci-lint
+  CUSTOM_GCL: ./.bin/custom-gcl
+  GO_TEST_ARGS: -race -covermode=atomic -coverprofile=coverage.out $(go list ./... | grep -v /cmd | grep -v /gen | grep -v /test)
+
+tasks:
+  lefthook:
+    internal: true
+    cmd: go run github.com/evilmartians/lefthook install
+
+  commitlint:install:
+    internal: true
+    cmds:
+      - docker pull commitlint/commitlint
+
+  init:
+    cmds:
+      - go mod tidy
+      - mkdir -p .bin
+      - task: commitlint:install
+      - task: lint:custom-gcl
+      - task: lefthook
+
+  lint:install:
+    internal: true
+    cmds:
+      - wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./.bin v{{.GOLANGCI_LINT_VERSION}}
+    status:
+      - '{{.GOLANGCI_LINT}} --version | grep -q {{.GOLANGCI_LINT_VERSION}}'
+
+  lint:custom-gcl:
+    internal: true
+    cmd: '{{.GOLANGCI_LINT}} custom -v'
+    deps:
+      - lint:install
+    sources:
+      - .custom-gcl.yml
+    generates:
+      - '{{.CUSTOM_GCL}}'
+
+  lint:
+    cmd: '{{.CUSTOM_GCL}} run'
+    deps:
+      - lint:custom-gcl
+
+  lint:fix:
+    cmd: '{{.CUSTOM_GCL}} run --fix'
+    deps:
+      - lint:custom-gcl
+
+  go:generate:
+    cmd: go generate ./...
+
+  test:
+    cmd: go run gotest.tools/gotestsum --format=testname -- {{.GO_TEST_ARGS}}
+
+  test:ci:
+    cmds:
+      - go run gotest.tools/gotestsum --format=testname --junitfile report.xml -- {{.GO_TEST_ARGS}}
+      - go run github.com/boumenot/gocover-cobertura < coverage.out > coverage.xml
+
+  mock:gen:
+    cmds:
+      - go run github.com/vektra/mockery/v2
+
+  generate:
+    cmds:
+      - task: go:generate
+      - task: mock:gen

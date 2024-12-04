@@ -1,0 +1,50 @@
+run:
+  go: '1.23'
+linters:
+  enable-all: true
+  disable:
+    - depguard
+    ## Deprecated linters
+    - exportloopref
+issues:
+  exclude-rules:
+    - path: '(.*_test\.go|.*test\/.*)'
+      linters:
+        - gochecknoglobals
+        - funlen
+        - dupl
+        - varnamelen
+        - lll
+  exclude-dirs:
+    - gen
+  exclude-files:
+    - 'wire_gen\.go'
+linters-settings:
+  gci:
+    sections:
+      - standard
+      - default
+      - prefix(github.com/trancong12102/jina-inference)
+  varnamelen:
+    ignore-names:
+      - r
+      - w
+  godox:
+    keywords:
+      - NOTE
+      - OPTIMIZE # marks code that should be optimized before merging
+      - HACK # marks hack-around that should be removed before merging
+  exhaustruct:
+    include:
+      - 'github\.com\/trancong12102\/jina-inference\/.*'
+    exclude:
+      - 'github\.com\/trancong12102\/jina-inference\/gen\/.*'
+  ireturn:
+    allow:
+      - anon
+      - error
+      - empty
+      - stdlib
+      - oas
+  testpackage:
+    skip-regexp: .+_test\.go
