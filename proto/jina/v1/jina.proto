@@ -4,7 +4,7 @@ package jina.v1;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/trancong12102/jina-inference/gen/jina/v1;jinav1";
+option go_package = "github.com/trancong12102/jina-inference/gen/proto/jina/v1;jinav1";
 
 service InferenceService {
   rpc Embed(EmbedRequest) returns (EmbedResponse) {}

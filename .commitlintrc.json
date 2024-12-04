@@ -1,0 +1,12 @@
+{
+  "extends": [
+    "@commitlint/config-conventional"
+  ],
+  "parserPreset": {
+    "parserOpts": {
+      "issuePrefixes": [
+        "[A-Z]+-"
+      ]
+    }
+  }
+}

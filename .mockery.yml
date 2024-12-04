@@ -1,0 +1,16 @@
+with-expecter: True
+dir: "gen/mocks/{{ .PackageName }}"
+mockname: "Mock{{ .InterfaceName }}"
+outpkg: "{{ .PackageName }}mock"
+filename: "{{ .InterfaceName | snakecase }}.go"
+recursive: true
+packages:
+  gitlab.jmango360.com/jm-common/media-proxy/http:
+    config:
+      all: True
+  gitlab.jmango360.com/jm-common/media-proxy/gen/oas:
+    interfaces:
+      Handler:
+  gitlab.jmango360.com/jm-common/media-proxy/transloadit:
+    config:
+      all: True

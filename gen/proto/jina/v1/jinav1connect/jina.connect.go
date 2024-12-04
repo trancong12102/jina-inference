@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	v1 "github.com/trancong12102/jina-inference/gen/jina/v1"
+	v1 "github.com/trancong12102/jina-inference/gen/proto/jina/v1"
 	http "net/http"
 	strings "strings"
 )
