@@ -9,6 +9,7 @@ import {
   type RerankInput,
   type RerankResponse,
   embedResponseSchema,
+  mapJinaRerankResponseToCohereRerankResponse,
   mapOpenAIEmbedInputToJinaInput,
   rerankResponseSchema,
 } from './proxy-schema';
@@ -50,7 +51,9 @@ export class ProxyService {
           },
         },
       );
-      return parseResponse(response, rerankResponseSchema);
+      return mapJinaRerankResponseToCohereRerankResponse(
+        await parseResponse(response, rerankResponseSchema),
+      );
     });
   }
 

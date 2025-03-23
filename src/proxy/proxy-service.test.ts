@@ -61,5 +61,21 @@ testWithDb.concurrent('proxy-service', async ({ db }) => {
       expect(result.results.length).toEqual(1);
       expect(result.results[0].index).toEqual(1);
     });
+
+    it('should correct fixed relevance_score to 8 decimal places', async () => {
+      const proxyService = new ProxyService({ httpClient, keyService });
+
+      const result = await proxyService.rerank({
+        model: 'jina-reranker-v2-base-multilingual',
+        query: 'Hello, world!',
+        documents: ['Hahaha', 'Hello, world!'],
+        top_n: 1,
+      });
+
+      expect(result.results[0].relevance_score).toEqual(1);
+      expect(result.results[1].relevance_score.toString()).toEqual(
+        result.results[0].relevance_score.toFixed(8),
+      );
+    });
   });
 });

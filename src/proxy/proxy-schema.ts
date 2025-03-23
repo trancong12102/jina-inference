@@ -91,3 +91,16 @@ export const rerankResponseSchema = z
   })
   .and(jinaUsageResponseSchema);
 export type RerankResponse = z.infer<typeof rerankResponseSchema>;
+
+export const mapJinaRerankResponseToCohereRerankResponse = (
+  source: RerankResponse,
+): RerankResponse => {
+  // keep only 8 decimal places for relevance_score
+  return {
+    ...source,
+    results: source.results.map((result) => ({
+      ...result,
+      relevance_score: Number.parseFloat(result.relevance_score.toFixed(8)),
+    })),
+  };
+};
