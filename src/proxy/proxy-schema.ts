@@ -3,8 +3,10 @@ import { z } from 'zod';
 export const embedInputSchema = z.object({
   input: z.union([z.string(), z.array(z.string())]),
   model: z.enum(['jina-clip-v2']),
-  // Ignore dimensions if not provided
-  dimensions: z.number().int().positive().max(1024).default(1024).optional(),
+  task: z
+    .enum(['retrieval.passage', 'retrieval.query', 'text-matching'])
+    .default('text-matching')
+    .optional(),
 });
 export type EmbedInput = z.infer<typeof embedInputSchema>;
 
