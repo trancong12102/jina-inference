@@ -1,5 +1,5 @@
 import type { Cradle } from '@fastify/awilix';
-import { and, count, desc, eq, gt, lte, or, sql, sum } from 'drizzle-orm';
+import { and, count, desc, eq, gte, lte, or, sql, sum } from 'drizzle-orm';
 import { type DbClient, keys } from '../lib/db';
 import { type HttpClient, parseResponse } from '../lib/http-client';
 import {
@@ -10,9 +10,12 @@ import {
   userResponseSchema,
 } from './key-schema';
 
-const availableKeyWhere = or(
-  eq(keys.using, false),
-  lte(keys.usedAt, sql`CURRENT_TIMESTAMP - INTERVAL '5 minutes'`),
+const availableKeyWhere = and(
+  gte(keys.balance, 100_000),
+  or(
+    eq(keys.using, false),
+    lte(keys.usedAt, sql`CURRENT_TIMESTAMP - INTERVAL '5 minutes'`),
+  ),
 );
 
 export class KeyService {
@@ -57,7 +60,7 @@ export class KeyService {
           skipLocked: true,
         })
         .limit(1)
-        .where(and(gt(keys.balance, 100_000), availableKeyWhere))
+        .where(availableKeyWhere)
         .orderBy(desc(keys.balance), sql`${keys.usedAt} ASC NULLS FIRST`);
 
       if (!key) {

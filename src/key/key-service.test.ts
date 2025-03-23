@@ -204,6 +204,24 @@ describe.concurrent('key-service', async () => {
         expect(result.using).toBe(true);
       },
     );
+
+    testWithDb(
+      'should not use key if it has less than 100000 balance',
+      async ({ db }) => {
+        const httpClient = createHttpClient();
+
+        const service = new KeyService({ db, httpClient });
+
+        await db.insert(keys).values({
+          key: 'test-key-1',
+          balance: 90_000,
+          usedAt: null,
+          using: false,
+        });
+
+        await expect(service.useBestKey()).rejects.toThrow();
+      },
+    );
   });
 
   describe('releaseKey', async () => {
