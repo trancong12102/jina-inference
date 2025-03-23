@@ -32,4 +32,6 @@ COPY package.json ./
 COPY drizzle ./drizzle
 
 ENV NODE_ENV=production
+ENV PORT=3000
+EXPOSE 3000
 CMD ["node", "dist/main.js", "--enable-source-maps"]
