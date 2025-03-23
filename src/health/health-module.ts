@@ -6,6 +6,7 @@ export const healthModule: FastifyPluginAsync = async (fastify) => {
     method: 'GET',
     url: '/health',
     schema: {
+      tags: ['Health'],
       response: {
         200: z.object({
           status: z.string(),
