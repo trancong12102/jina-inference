@@ -1,5 +1,5 @@
 import AxiosMockAdapter from 'axios-mock-adapter';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { describe, expect } from 'vitest';
 import { testWithDb } from '../../test/context/db-client';
 import { keys } from '../lib/db';
@@ -141,6 +141,33 @@ describe.concurrent('key-service', async () => {
 
       await expect(service.useBestKey()).rejects.toThrow();
     });
+
+    testWithDb(
+      'should use key if it is not used for 5 minutes',
+      async ({ db }) => {
+        const httpClient = createHttpClient();
+
+        const service = new KeyService({ db, httpClient });
+
+        await db.insert(keys).values({
+          key: 'test-key-1',
+          balance: 900_000,
+          usedAt: null,
+          using: true,
+        });
+
+        await db
+          .update(keys)
+          .set({ usedAt: sql`CURRENT_TIMESTAMP - INTERVAL '6 minutes'` })
+          .where(eq(keys.key, 'test-key-1'));
+
+        const result = await service.useBestKey();
+
+        expect(result.balance).toEqual(900_000);
+        expect(result.usedAt).not.toBeNull();
+        expect(result.using).toBe(true);
+      },
+    );
   });
 
   describe('releaseKey', async () => {
