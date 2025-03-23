@@ -1,0 +1,6 @@
+pre-commit:
+  jobs:
+    - name: lint
+      run: pnpm lint && git add .
+    - name: generate-env-example
+      run: pnpm generate-env-example && git add .

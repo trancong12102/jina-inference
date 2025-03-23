@@ -1,0 +1,52 @@
+{
+  "name": "jina-api",
+  "version": "0.1.0",
+  "description": "Jina API",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=.env ./src/main.ts",
+    "build": "vite build",
+    "check-types": "tsc --noEmit",
+    "lint": "biome check --write",
+    "generate-env-example": "sed 's/=.*/=/' .env > .env.example"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.6.5",
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^22.13.11",
+    "@types/pg": "^8.11.11",
+    "drizzle-kit": "^0.30.5",
+    "lefthook": "^1.11.3",
+    "rollup-plugin-node-externals": "^8.0.0",
+    "tsx": "^4.19.3",
+    "type-fest": "^4.37.0",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.2",
+    "vitest": "^3.0.9"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["@biomejs/biome", "esbuild", "lefthook"]
+  },
+  "dependencies": {
+    "@fastify/awilix": "^7.0.0",
+    "@fastify/swagger": "^9.4.2",
+    "@scalar/fastify-api-reference": "^1.28.7",
+    "awilix": "^12.0.5",
+    "axios": "^1.8.4",
+    "camelcase-keys": "^9.1.3",
+    "close-with-grace": "^2.2.0",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.41.0",
+    "drizzle-zod": "^0.7.0",
+    "fastify": "^5.2.1",
+    "fastify-plugin": "^5.0.1",
+    "fastify-zod-openapi": "^4.1.1",
+    "pg": "^8.14.1",
+    "zod": "^3.24.2",
+    "zod-openapi": "^4.2.3",
+    "zod-validation-error": "^3.4.0"
+  }
+}
