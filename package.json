@@ -1,14 +1,16 @@
 {
-  "name": "jina-api",
+  "name": "jina-inference",
   "version": "0.1.0",
-  "description": "Jina API",
+  "description": "Jina Inference API",
   "type": "module",
   "scripts": {
     "dev": "tsx watch --env-file=.env ./src/main.ts",
     "build": "vite build",
     "check-types": "tsc --noEmit",
     "lint": "biome check --write",
-    "generate-env-example": "sed 's/=.*/=/' .env > .env.example"
+    "generate-env-example": "sed 's/=.*/=/' .env > .env.example",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
   },
   "keywords": [],
   "author": "",

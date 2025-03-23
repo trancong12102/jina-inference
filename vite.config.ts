@@ -22,5 +22,6 @@ export default defineConfig({
   plugins: [nodeExternals()],
   test: {
     setupFiles: ['dotenv/config'],
+    watch: false,
   },
 });
