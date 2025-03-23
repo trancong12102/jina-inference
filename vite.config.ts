@@ -20,4 +20,7 @@ export default defineConfig({
     sourcemap: true,
   },
   plugins: [nodeExternals()],
+  test: {
+    setupFiles: ['dotenv/config'],
+  },
 });

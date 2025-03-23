@@ -1,0 +1,169 @@
+import AxiosMockAdapter from 'axios-mock-adapter';
+import { eq } from 'drizzle-orm';
+import { describe, expect } from 'vitest';
+import { testWithDb } from '../../test/context/db-client';
+import { keys } from '../lib/db';
+import { createHttpClient } from '../lib/http-client';
+import type { Key, KeyStatus, UserResponse } from './key-schema';
+import { KeyService } from './key-service';
+
+describe.concurrent('key-service', async () => {
+  describe('addKey', async () => {
+    testWithDb('should add key', async ({ db }) => {
+      const httpClient = createHttpClient();
+      const mockHttpClient = new AxiosMockAdapter(httpClient);
+
+      const service = new KeyService({ db, httpClient });
+
+      const key = 'test-key';
+      const balance = 827304;
+
+      mockHttpClient
+        .onGet('https://embeddings-dashboard-api.jina.ai/api/v1/api_key/user', {
+          params: {
+            api_key: key,
+          },
+        })
+        .reply(200, {
+          wallet: {
+            total_balance: balance,
+          },
+        } satisfies UserResponse);
+
+      const result = await service.addKey(key);
+
+      const expectedResponse: Key = {
+        key,
+        balance,
+        usedAt: null,
+        using: false,
+      };
+
+      expect(result).toEqual(expectedResponse);
+    });
+
+    testWithDb('should throw error if key is not found', async ({ db }) => {
+      const httpClient = createHttpClient();
+      const mockHttpClient = new AxiosMockAdapter(httpClient);
+
+      const service = new KeyService({ db, httpClient });
+
+      const key = 'test-key';
+
+      mockHttpClient
+        .onGet('https://embeddings-dashboard-api.jina.ai/api/v1/api_key/user', {
+          params: {
+            api_key: key,
+          },
+        })
+        .reply(404, {
+          error: 'Key not found',
+        });
+
+      await expect(service.addKey(key)).rejects.toThrow();
+    });
+  });
+
+  describe('getKeyStatus', async () => {
+    testWithDb('should get key status', async ({ db }) => {
+      const httpClient = createHttpClient();
+
+      const service = new KeyService({ db, httpClient });
+
+      const key = 'test-key';
+      const balance = 827304;
+
+      await db.insert(keys).values({
+        key,
+        balance,
+        usedAt: null,
+        using: false,
+      });
+
+      const result = await service.getKeyStatus();
+
+      expect(result).toEqual({
+        totalKeys: 1,
+        totalAvailableKeys: 1,
+        totalAvailableBalance: BigInt(balance),
+        totalBalance: BigInt(balance),
+      } satisfies KeyStatus);
+    });
+  });
+
+  describe('useBestKey', async () => {
+    testWithDb('should use best key', async ({ db }) => {
+      const httpClient = createHttpClient();
+
+      const service = new KeyService({ db, httpClient });
+
+      await db.insert(keys).values({
+        key: 'test-key-1',
+        balance: 900_000,
+        usedAt: null,
+        using: false,
+      });
+
+      await db.insert(keys).values({
+        key: 'test-key-2',
+        balance: 1_000_000,
+        usedAt: null,
+        using: false,
+      });
+
+      const result = await service.useBestKey();
+
+      // use key 2
+      expect(result.balance).toEqual(1_000_000);
+      expect(result.usedAt).not.toBeNull();
+      expect(result.using).toBe(true);
+      expect(result.key).toEqual('test-key-2');
+
+      // decrease balance of key 2 to equal balance of key 1 and set using to false
+      await db
+        .update(keys)
+        .set({ balance: 900_000, using: false })
+        .where(eq(keys.key, 'test-key-2'));
+
+      // use key 1
+      const result2 = await service.useBestKey();
+
+      expect(result2.balance).toEqual(900_000);
+      expect(result2.usedAt).not.toBeNull();
+      expect(result2.using).toBe(true);
+      expect(result2.key).toEqual('test-key-1');
+    });
+
+    testWithDb('should throw error if no key is available', async ({ db }) => {
+      const httpClient = createHttpClient();
+
+      const service = new KeyService({ db, httpClient });
+
+      await expect(service.useBestKey()).rejects.toThrow();
+    });
+  });
+
+  describe('releaseKey', async () => {
+    testWithDb('should release key', async ({ db }) => {
+      const httpClient = createHttpClient();
+
+      const service = new KeyService({ db, httpClient });
+
+      await db.insert(keys).values({
+        key: 'test-key-1',
+        balance: 900_000,
+        usedAt: null,
+        using: true,
+      });
+
+      await service.releaseKey('test-key-1', 100_000);
+
+      const result = await db
+        .select()
+        .from(keys)
+        .where(eq(keys.key, 'test-key-1'));
+
+      expect(result).toEqual([expect.objectContaining({ balance: 800_000 })]);
+    });
+  });
+});

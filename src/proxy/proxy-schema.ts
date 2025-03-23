@@ -3,7 +3,8 @@ import { z } from 'zod';
 export const embedInputSchema = z.object({
   input: z.union([z.string(), z.array(z.string())]),
   model: z.enum(['jina-clip-v2']),
-  dimensions: z.number().int().positive().max(1024).default(1024),
+  // Ignore dimensions if not provided
+  dimensions: z.number().int().positive().max(1024).default(1024).optional(),
 });
 export type EmbedInput = z.infer<typeof embedInputSchema>;
 
@@ -71,7 +72,7 @@ export const mapOpenAIChunkInputToJinaInput = (
 export const rerankInputSchema = z.object({
   model: z.enum(['jina-reranker-v2-base-multilingual']),
   query: z.string(),
-  top_n: z.number().int().positive().default(1),
+  top_n: z.number().int().positive().default(1).optional(),
   documents: z.array(z.string()),
 });
 export type RerankInput = z.infer<typeof rerankInputSchema>;

@@ -23,7 +23,8 @@
         "useNamingConvention": "off"
       },
       "suspicious": {
-        "useAwait": "off"
+        "useAwait": "off",
+        "noMisplacedAssertion": "off"
       }
     },
     "ignore": ["dist", "**/*.js", "**/*.mjs", "**/*.cjs"]

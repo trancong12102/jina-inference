@@ -1,5 +1,5 @@
 import type { Cradle } from '@fastify/awilix';
-import { and, asc, count, desc, eq, gt, sql, sum } from 'drizzle-orm';
+import { and, count, desc, eq, gt, sql, sum } from 'drizzle-orm';
 import { type DbClient, keys } from '../lib/db';
 import { type HttpClient, parseResponse } from '../lib/http-client';
 import {
@@ -53,21 +53,22 @@ export class KeyService {
         })
         .limit(1)
         .where(and(gt(keys.balance, 100_000), eq(keys.using, false)))
-        .orderBy(desc(keys.balance), asc(keys.usedAt));
+        .orderBy(desc(keys.balance), sql`${keys.usedAt} ASC NULLS FIRST`);
 
       if (!key) {
         throw new Error('No key found');
       }
 
-      await tx
+      const [updatedKey] = await tx
         .update(keys)
         .set({
           usedAt: new Date(),
           using: true,
         })
-        .where(eq(keys.key, key.key));
+        .where(eq(keys.key, key.key))
+        .returning();
 
-      return key;
+      return updatedKey;
     });
   }
 
@@ -81,8 +82,8 @@ export class KeyService {
       .where(eq(keys.key, key));
   }
 
-  async createKey(key: string): Promise<Key> {
-    const user = await this.getKey(key);
+  async addKey(key: string): Promise<Key> {
+    const user = await this.fetchJinaUser(key);
     const {
       wallet: { totalBalance },
     } = user;
@@ -94,7 +95,7 @@ export class KeyService {
     return createdKey;
   }
 
-  async getKey(key: string): Promise<User> {
+  async fetchJinaUser(key: string): Promise<User> {
     const response = await this.httpClient.get(
       'https://embeddings-dashboard-api.jina.ai/api/v1/api_key/user',
       {

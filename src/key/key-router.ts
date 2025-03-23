@@ -47,7 +47,7 @@ export const keyRouter: FastifyPluginAsyncZodOpenApi = async (app) => {
       const keyService = diContainer.resolve('keyService');
 
       const { key } = req.body;
-      const createdKey = await keyService.createKey(key);
+      const createdKey = await keyService.addKey(key);
 
       return reply.status(201).send(createdKey);
     },
