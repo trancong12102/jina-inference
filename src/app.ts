@@ -12,6 +12,7 @@ import {
 import type { ZodOpenApiVersion } from 'zod-openapi';
 import 'zod-openapi/extend';
 import { description, version } from '../package.json' with { type: 'json' };
+import { healthModule } from './health/health-module';
 import { keyModule } from './key/key-module';
 import { dbModule } from './lib/db';
 import { diContainer } from './lib/di';
@@ -56,6 +57,7 @@ export const createApp = async (env: Env) => {
   // register modules
   await app.register(keyModule);
   await app.register(proxyModule);
+  await app.register(healthModule);
 
   return app;
 };
