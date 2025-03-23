@@ -95,6 +95,12 @@ export class KeyService {
     const [createdKey] = await this.db
       .insert(keys)
       .values({ key, balance: totalBalance })
+      .onConflictDoUpdate({
+        target: [keys.key],
+        set: {
+          balance: totalBalance,
+        },
+      })
       .returning();
 
     return createdKey;

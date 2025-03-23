@@ -62,6 +62,42 @@ describe.concurrent('key-service', async () => {
 
       await expect(service.addKey(key)).rejects.toThrow();
     });
+
+    testWithDb(
+      'should update key balance if it already exists',
+      async ({ db }) => {
+        const httpClient = createHttpClient();
+        const mockHttpClient = new AxiosMockAdapter(httpClient);
+
+        const service = new KeyService({ db, httpClient });
+
+        await db.insert(keys).values({
+          key: 'test-key',
+          balance: 100_000,
+          usedAt: null,
+          using: false,
+        });
+
+        mockHttpClient
+          .onGet(
+            'https://embeddings-dashboard-api.jina.ai/api/v1/api_key/user',
+            {
+              params: {
+                api_key: 'test-key',
+              },
+            },
+          )
+          .reply(200, {
+            wallet: {
+              total_balance: 200_000,
+            },
+          } satisfies UserResponse);
+
+        const result = await service.addKey('test-key');
+
+        expect(result.balance).toEqual(200_000);
+      },
+    );
   });
 
   describe('getKeyStatus', async () => {
