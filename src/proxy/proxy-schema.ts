@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const embedInputSchema = z.object({
   input: z.union([z.string(), z.array(z.string())]),
-  model: z.enum(['jina-clip-v2']),
+  model: z.enum(['jina-clip-v2', 'jina-embeddings-v3']),
   task: z
     .enum(['retrieval.passage', 'retrieval.query', 'text-matching'])
     .default('text-matching')
