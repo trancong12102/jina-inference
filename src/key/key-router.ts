@@ -10,6 +10,7 @@ export const keyRouter: FastifyPluginAsyncZodOpenApi = async (app) => {
       schema: {
         tags: TAGS,
         summary: 'Get keys status',
+        operationId: 'getKeysStatus',
         response: {
           200: keyStatusSchema.openapi({
             ref: 'KeyStatus',
@@ -33,6 +34,7 @@ export const keyRouter: FastifyPluginAsyncZodOpenApi = async (app) => {
       schema: {
         tags: TAGS,
         summary: 'Create key',
+        operationId: 'createKey',
         body: createKeyInputSchema,
         response: {
           201: keySchema.openapi({
