@@ -9,11 +9,11 @@ export const keyRouter: FastifyPluginAsyncZodOpenApi = async (app) => {
     {
       schema: {
         tags: TAGS,
-        summary: 'Get key status',
+        summary: 'Get keys status',
         response: {
           200: keyStatusSchema.openapi({
             ref: 'KeyStatus',
-            description: 'Key status',
+            description: 'Keys status',
           }),
         },
       },

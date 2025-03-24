@@ -13,7 +13,7 @@ export const keyModule = fastifyPlugin(
     });
 
     await app.register(keyRouter, {
-      prefix: '/key',
+      prefix: '/keys',
     });
   },
   {
