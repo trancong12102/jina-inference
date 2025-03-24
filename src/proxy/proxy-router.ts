@@ -22,9 +22,12 @@ export const proxyRouter: FastifyPluginAsyncZodOpenApi = async (app) => {
         operationId: 'createEmbeddings',
         description:
           'Create embeddings for a given text or image. Compatible with OpenAI API.',
-        body: embedInputSchema,
+        body: embedInputSchema.openapi({
+          ref: 'CreateEmbeddingsRequest',
+        }),
         response: {
           200: embedResponseSchema.openapi({
+            ref: 'CreateEmbeddingsResponse',
             description: 'Embeddings',
           }),
         },
@@ -48,9 +51,12 @@ export const proxyRouter: FastifyPluginAsyncZodOpenApi = async (app) => {
         operationId: 'rerankDocuments',
         description:
           'Rerank documents for a given query. Compatible with Cohere API.',
-        body: rerankInputSchema,
+        body: rerankInputSchema.openapi({
+          ref: 'RerankDocumentsRequest',
+        }),
         response: {
           200: rerankResponseSchema.openapi({
+            ref: 'RerankDocumentsResponse',
             description: 'Reranked documents',
           }),
         },
