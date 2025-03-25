@@ -1,4 +1,5 @@
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+import { responseWithDefaultSchema } from '../lib/openapi';
 import {
   embedInputSchema,
   embedResponseSchema,
@@ -25,12 +26,13 @@ export const proxyRouter: FastifyPluginAsyncZodOpenApi = async (app) => {
         body: embedInputSchema.openapi({
           ref: 'CreateEmbeddingsRequest',
         }),
-        response: {
+        response: responseWithDefaultSchema({
           200: embedResponseSchema.openapi({
             ref: 'CreateEmbeddingsResponse',
             description: 'Embeddings',
+            title: 'CreateEmbeddingsResponse',
           }),
-        },
+        }),
       },
     },
     async (request, reply) => {
@@ -54,12 +56,13 @@ export const proxyRouter: FastifyPluginAsyncZodOpenApi = async (app) => {
         body: rerankInputSchema.openapi({
           ref: 'RerankDocumentsRequest',
         }),
-        response: {
+        response: responseWithDefaultSchema({
           200: rerankResponseSchema.openapi({
             ref: 'RerankDocumentsResponse',
             description: 'Reranked documents',
+            title: 'RerankDocumentsResponse',
           }),
-        },
+        }),
       },
     },
     async (request, reply) => {

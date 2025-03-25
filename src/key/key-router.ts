@@ -1,4 +1,5 @@
 import type { FastifyPluginAsyncZodOpenApi } from 'fastify-zod-openapi';
+import { responseWithDefaultSchema } from '../lib/openapi';
 import { createKeyInputSchema, keySchema, keyStatusSchema } from './key-schema';
 
 const TAGS = ['Key'];
@@ -11,12 +12,13 @@ export const keyRouter: FastifyPluginAsyncZodOpenApi = async (app) => {
         tags: TAGS,
         summary: 'Get keys status',
         operationId: 'getKeysStatus',
-        response: {
+        response: responseWithDefaultSchema({
           200: keyStatusSchema.openapi({
             ref: 'KeyStatus',
             description: 'Keys status',
+            title: 'KeyStatus',
           }),
-        },
+        }),
       },
     },
     async (_, reply) => {
@@ -36,12 +38,13 @@ export const keyRouter: FastifyPluginAsyncZodOpenApi = async (app) => {
         summary: 'Create key',
         operationId: 'createKey',
         body: createKeyInputSchema,
-        response: {
+        response: responseWithDefaultSchema({
           201: keySchema.openapi({
             ref: 'Key',
             description: 'Created key',
+            title: 'Key',
           }),
-        },
+        }),
       },
     },
     async (req, reply) => {
