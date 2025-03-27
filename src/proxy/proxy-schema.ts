@@ -72,7 +72,7 @@ export const mapOpenAIChunkInputToJinaInput = (
 };
 
 export const rerankInputSchema = z.object({
-  model: z.enum(['jina-reranker-v2-base-multilingual']),
+  model: z.enum(['jina-reranker-v2-base-multilingual', 'jina-colbert-v2']),
   query: z.string(),
   top_n: z.number().int().positive().default(1).optional(),
   documents: z.array(z.string()),
